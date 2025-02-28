@@ -18,5 +18,10 @@ import jakarta.validation.constraints.Min;
 public class Storage {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = ")
+	@Column(name = "Storage_No")
+	private Integer storageNo;
+
+	@ManyToOne
+	@JoinColumn(name = "Store_ID", nullable = false)
+	private Store store;
 }
