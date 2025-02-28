@@ -18,5 +18,5 @@ import jakarta.validation.constraints.Min;
 public class Storage {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column()
+	@Column(name = ")
 }
