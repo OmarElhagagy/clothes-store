@@ -27,6 +27,7 @@ public class Categories {
 	@OneToMany(mappedBy = "category")
 	private Set<ProductCategories> productCategories = new HashSet<>();
 
+	// Getters and setters
 	public Integer getCategoryId() {
 		return categoryId;
 	}
@@ -50,9 +51,4 @@ public class Categories {
 	public void setProductCategories(Set<ProductCategories> productCategories) {
 		this.productCategories = productCategories;
 	}
-
-    // Getters and setters
-    
 }
-
-
