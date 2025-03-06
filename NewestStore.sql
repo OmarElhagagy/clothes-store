@@ -1,3 +1,4 @@
+-- 1. Store (Base table for inventory and employees)
 CREATE TABLE "Store" (
   "Store_ID" SERIAL PRIMARY KEY,
   "Address" VARCHAR(255) NOT NULL,
@@ -5,12 +6,14 @@ CREATE TABLE "Store" (
   "Min_Stock" INT NOT NULL CHECK ("Min_Stock" >= 0)
 );
 
+-- 2. Supplier (Base table for products)
 CREATE TABLE "Supplier" (
   "Supplier_ID" SERIAL PRIMARY KEY,
   "Supplier_Name" VARCHAR(100) NOT NULL,
   "Email" VARCHAR(255) UNIQUE NOT NULL
 );
 
+-- 3. Customer (Base table for users, orders, etc.)
 CREATE TABLE "Customer" (
   "Customer_ID" SERIAL PRIMARY KEY,
   "F_Name" VARCHAR(50) NOT NULL,
@@ -21,6 +24,7 @@ CREATE TABLE "Customer" (
   "Email" VARCHAR(255) UNIQUE NOT NULL
 );
 
+-- 4. Storage (Depends on Store)
 CREATE TABLE "Storage" (
   "Storage_No" SERIAL PRIMARY KEY,
   "Store_ID" INT NOT NULL REFERENCES "Store" ("Store_ID") ON DELETE CASCADE,
@@ -30,6 +34,7 @@ CREATE TABLE "Storage" (
   "Min_Stock" INT NOT NULL CHECK ("Min_Stock" <= "Reorder_Level")
 );
 
+-- 5. Employee (Depends on Store, Storage, and self-referential Supervisor)
 CREATE TABLE "Employee" (
   "Employee_ID" SERIAL PRIMARY KEY,
   "Store_ID" INT NOT NULL REFERENCES "Store" ("Store_ID") ON DELETE RESTRICT,
@@ -43,35 +48,40 @@ CREATE TABLE "Employee" (
   "Supervisor" INT REFERENCES "Employee" ("Employee_ID") ON DELETE SET NULL
 );
 
+-- 6. Payment_Methods (Independent lookup table)
 CREATE TABLE "Payment_Methods" (
   "Payment_Method_ID" SERIAL PRIMARY KEY,
   "Method_Name" VARCHAR(50) NOT NULL UNIQUE CHECK ("Method_Name" IN ('Cash', 'Credit', 'Debit', 'Online'))
 );
 
+-- 7. Categories (Independent lookup table)
 CREATE TABLE "Categories" (
   "Category_ID" SERIAL PRIMARY KEY,
   "Category_Name" VARCHAR(50) NOT NULL UNIQUE
 );
 
+-- 8. Users (Depends on Customer)
 CREATE TABLE "Users" (
   "User_ID" SERIAL PRIMARY KEY,
   "Customer_ID" INT NOT NULL REFERENCES "Customer" ("Customer_ID") ON DELETE CASCADE,
   "Email" VARCHAR(255) UNIQUE NOT NULL,
   "Password_Hash" VARCHAR(255) NOT NULL,
   "Role" VARCHAR(20) NOT NULL CHECK ("Role" IN ('Guest', 'Registered', 'Admin')) DEFAULT 'Registered',
-  "Failed_Logins" INT NOT NULL DEFAULT 0 CHECK ("Failed_Logins" >= 0), -- Security
-  "Locked_Until" TIMESTAMP, -- Lockout after failed attempts
+  "Failed_Logins" INT NOT NULL DEFAULT 0 CHECK ("Failed_Logins" >= 0),
+  "Locked_Until" TIMESTAMP,
   "Created_At" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE "Sessions" ( -- New: Track logged-in users
-  "Session_ID" VARCHAR(128) PRIMARY KEY, -- UUID or token
+-- 9. Sessions (Depends on Users)
+CREATE TABLE "Sessions" (
+  "Session_ID" VARCHAR(128) PRIMARY KEY,
   "User_ID" INT NOT NULL REFERENCES "Users" ("User_ID") ON DELETE CASCADE,
   "Created_At" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "Expires_At" TIMESTAMP NOT NULL
 );
 
-CREATE TABLE "Addresses" ( -- New: Shipping info
+-- 10. Addresses (Depends on Customer)
+CREATE TABLE "Addresses" (
   "Address_ID" SERIAL PRIMARY KEY,
   "Customer_ID" INT NOT NULL REFERENCES "Customer" ("Customer_ID") ON DELETE CASCADE,
   "Street" VARCHAR(100) NOT NULL,
@@ -82,6 +92,7 @@ CREATE TABLE "Addresses" ( -- New: Shipping info
   "Is_Default" BOOLEAN NOT NULL DEFAULT FALSE
 );
 
+-- 11. Product (Depends on Supplier, updated with Description and Is_Active)
 CREATE TABLE "Product" (
   "Product_ID" SERIAL PRIMARY KEY,
   "Supplier_ID" INT REFERENCES "Supplier" ("Supplier_ID") ON DELETE SET NULL,
@@ -90,9 +101,12 @@ CREATE TABLE "Product" (
   "Brand" VARCHAR(50) NOT NULL,
   "Price" DECIMAL(10, 2) NOT NULL CHECK ("Price" >= 0),
   "Color" VARCHAR(30) NOT NULL,
-  "Launch_Date" DATE NOT NULL DEFAULT CURRENT_DATE
+  "Launch_Date" DATE NOT NULL DEFAULT CURRENT_DATE,
+  "Description" TEXT,           -- Critical addition
+  "Is_Active" BOOLEAN NOT NULL DEFAULT TRUE  -- Critical addition
 );
 
+-- 12. Store_Inventory (Depends on Store and Product)
 CREATE TABLE "Store_Inventory" (
   "Store_ID" INT NOT NULL REFERENCES "Store" ("Store_ID") ON DELETE CASCADE,
   "Product_ID" INT NOT NULL REFERENCES "Product" ("Product_ID") ON DELETE CASCADE,
@@ -100,26 +114,43 @@ CREATE TABLE "Store_Inventory" (
   PRIMARY KEY ("Store_ID", "Product_ID")
 );
 
-CREATE TABLE "Reserved_Stock" ( -- New: Prevent overselling
+-- 13. Reserved_Stock (Depends on Store and Product)
+CREATE TABLE "Reserved_Stock" (
   "Reservation_ID" SERIAL PRIMARY KEY,
   "Store_ID" INT NOT NULL REFERENCES "Store" ("Store_ID") ON DELETE CASCADE,
   "Product_ID" INT NOT NULL REFERENCES "Product" ("Product_ID") ON DELETE CASCADE,
   "Quantity" INT NOT NULL CHECK ("Quantity" > 0),
   "Reserved_At" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  "Expires_At" TIMESTAMP NOT NULL -- Cart timeout
+  "Expires_At" TIMESTAMP NOT NULL
 );
 
+-- 14. Promotions (Independent, updated with Max_Uses)
+CREATE TABLE "Promotions" (
+  "Promotion_ID" SERIAL PRIMARY KEY,
+  "Code" VARCHAR(20) UNIQUE,
+  "Description" VARCHAR(255) NOT NULL,
+  "Discount_Percentage" DECIMAL(5, 2) CHECK ("Discount_Percentage" BETWEEN 0 AND 100),
+  "Discount_Amount" DECIMAL(10, 2) CHECK ("Discount_Amount" >= 0),
+  "Start_Date" DATE NOT NULL,
+  "End_Date" DATE NOT NULL CHECK ("End_Date" >= "Start_Date"),
+  "Is_Active" BOOLEAN NOT NULL DEFAULT TRUE,
+  "Max_Uses" INT CHECK ("Max_Uses" > 0)  -- Optional addition
+);
+
+-- 15. Customer_Order (Depends on Employee, Customer, Payment_Methods, Addresses, Promotions)
 CREATE TABLE "Customer_Order" (
   "Order_ID" SERIAL PRIMARY KEY,
   "Employee_Seller_ID" INT NOT NULL REFERENCES "Employee" ("Employee_ID") ON DELETE RESTRICT,
   "Customer_ID" INT NOT NULL REFERENCES "Customer" ("Customer_ID") ON DELETE RESTRICT,
   "Payment_Method_ID" INT NOT NULL REFERENCES "Payment_Methods" ("Payment_Method_ID") ON DELETE RESTRICT,
-  "Address_ID" INT REFERENCES "Addresses" ("Address_ID") ON DELETE SET NULL, -- New: Shipping link
+  "Address_ID" INT REFERENCES "Addresses" ("Address_ID") ON DELETE SET NULL,
+  "Promotion_ID" INT REFERENCES "Promotions" ("Promotion_ID") ON DELETE SET NULL,
   "Purchase_Date" DATE NOT NULL DEFAULT CURRENT_DATE,
   "Total_Price" DECIMAL(10, 2) NOT NULL CHECK ("Total_Price" >= 0),
   "Status" VARCHAR(20) NOT NULL CHECK ("Status" IN ('Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'))
 );
 
+-- 16. Order_Details (Depends on Customer_Order and Product)
 CREATE TABLE "Order_Details" (
   "Order_ID" INT NOT NULL REFERENCES "Customer_Order" ("Order_ID") ON DELETE CASCADE,
   "Product_ID" INT NOT NULL REFERENCES "Product" ("Product_ID") ON DELETE RESTRICT,
@@ -130,6 +161,7 @@ CREATE TABLE "Order_Details" (
   PRIMARY KEY ("Order_ID", "Product_ID")
 );
 
+-- 17. Return (Depends on Customer_Order and Product)
 CREATE TABLE "Return" (
   "Return_ID" SERIAL PRIMARY KEY,
   "Order_ID" INT NOT NULL REFERENCES "Customer_Order" ("Order_ID") ON DELETE RESTRICT,
@@ -140,6 +172,7 @@ CREATE TABLE "Return" (
   "Return_Date" DATE NOT NULL DEFAULT CURRENT_DATE
 );
 
+-- 18. Supply_Order (Depends on Supplier, Product, Employee)
 CREATE TABLE "Supply_Order" (
   "Supply_Order_ID" SERIAL PRIMARY KEY,
   "Supplier_ID" INT NOT NULL REFERENCES "Supplier" ("Supplier_ID") ON DELETE RESTRICT,
@@ -150,6 +183,7 @@ CREATE TABLE "Supply_Order" (
   "Order_Date" DATE NOT NULL DEFAULT CURRENT_DATE
 );
 
+-- 19. Price_History (Depends on Product)
 CREATE TABLE "Price_History" (
   "History_ID" SERIAL PRIMARY KEY,
   "Product_ID" INT NOT NULL REFERENCES "Product" ("Product_ID") ON DELETE CASCADE,
@@ -157,6 +191,7 @@ CREATE TABLE "Price_History" (
   "Change_Date" DATE NOT NULL DEFAULT CURRENT_DATE
 );
 
+-- 20. Cart (Depends on Customer and Product)
 CREATE TABLE "Cart" (
   "Cart_ID" SERIAL PRIMARY KEY,
   "Customer_ID" INT NOT NULL REFERENCES "Customer" ("Customer_ID") ON DELETE CASCADE,
@@ -165,6 +200,7 @@ CREATE TABLE "Cart" (
   "Added_Date" DATE NOT NULL DEFAULT CURRENT_DATE
 );
 
+-- 21. Wishlist (Depends on Customer and Product)
 CREATE TABLE "Wishlist" (
   "Wishlist_ID" SERIAL PRIMARY KEY,
   "Customer_ID" INT NOT NULL REFERENCES "Customer" ("Customer_ID") ON DELETE CASCADE,
@@ -172,33 +208,39 @@ CREATE TABLE "Wishlist" (
   "Added_Date" DATE NOT NULL DEFAULT CURRENT_DATE
 );
 
+-- 22. Phone_Numbers_Employees (Depends on Employee)
 CREATE TABLE "Phone_Numbers_Employees" (
   "Phone_Number" VARCHAR(20) PRIMARY KEY,
   "Employee_ID" INT NOT NULL REFERENCES "Employee" ("Employee_ID") ON DELETE CASCADE
 );
 
+-- 23. Phone_Numbers_Customers (Depends on Customer)
 CREATE TABLE "Phone_Numbers_Customers" (
   "Phone_Number" VARCHAR(20) PRIMARY KEY,
   "Customer_ID" INT NOT NULL REFERENCES "Customer" ("Customer_ID") ON DELETE CASCADE
 );
 
+-- 24. Phone_Numbers_Supplier (Depends on Supplier)
 CREATE TABLE "Phone_Numbers_Supplier" (
   "Phone_Number" VARCHAR(20) PRIMARY KEY,
   "Supplier_ID" INT NOT NULL REFERENCES "Supplier" ("Supplier_ID") ON DELETE CASCADE
 );
 
+-- 25. Image (Depends on Product)
 CREATE TABLE "Image" (
   "Image_ID" SERIAL PRIMARY KEY,
   "Product_ID" INT NOT NULL REFERENCES "Product" ("Product_ID") ON DELETE CASCADE,
   "Image_URL" TEXT NOT NULL
 );
 
+-- 26. Product_Categories (Depends on Product and Categories)
 CREATE TABLE "Product_Categories" (
   "Product_ID" INT NOT NULL REFERENCES "Product" ("Product_ID") ON DELETE CASCADE,
   "Category_ID" INT NOT NULL REFERENCES "Categories" ("Category_ID") ON DELETE CASCADE,
   PRIMARY KEY ("Product_ID", "Category_ID")
 );
 
+-- 27. Notification (Depends on Customer, Store, Product, Employee)
 CREATE TABLE "Notification" (
   "Notification_ID" SERIAL PRIMARY KEY,
   "Customer_ID" INT REFERENCES "Customer" ("Customer_ID") ON DELETE SET NULL,
@@ -209,16 +251,38 @@ CREATE TABLE "Notification" (
   "Sent_Date" DATE NOT NULL DEFAULT CURRENT_DATE
 );
 
-CREATE TABLE "Audit_Log" ( -- New: Track actions
+-- 28. Audit_Log (Depends on Users and Employee)
+CREATE TABLE "Audit_Log" (
   "Log_ID" SERIAL PRIMARY KEY,
   "User_ID" INT REFERENCES "Users" ("User_ID") ON DELETE SET NULL,
   "Employee_ID" INT REFERENCES "Employee" ("Employee_ID") ON DELETE SET NULL,
-  "Action" VARCHAR(50) NOT NULL, -- e.g., 'Login', 'Order Placed', 'Price Updated'
+  "Action" VARCHAR(50) NOT NULL,
   "Table_Name" VARCHAR(50),
   "Record_ID" INT,
   "Timestamp" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 29. Reviews (Depends on Product and Customer)
+CREATE TABLE "Reviews" (
+  "Review_ID" SERIAL PRIMARY KEY,
+  "Product_ID" INT NOT NULL REFERENCES "Product" ("Product_ID") ON DELETE CASCADE,
+  "Customer_ID" INT NOT NULL REFERENCES "Customer" ("Customer_ID") ON DELETE CASCADE,
+  "Rating" INT NOT NULL CHECK ("Rating" BETWEEN 1 AND 5),
+  "Comment" TEXT,
+  "Review_Date" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 30. Shipping (Depends on Customer_Order)
+CREATE TABLE "Shipping" (
+  "Shipping_ID" SERIAL PRIMARY KEY,
+  "Order_ID" INT NOT NULL REFERENCES "Customer_Order" ("Order_ID") ON DELETE CASCADE,
+  "Tracking_Number" VARCHAR(50),
+  "Shipping_Provider" VARCHAR(50),
+  "Shipped_Date" TIMESTAMP,
+  "Delivered_Date" TIMESTAMP
+);
+
+-- Indexes (Added at the end to avoid dependency issues during table creation)
 CREATE INDEX idx_order_customer ON "Customer_Order" ("Customer_ID");
 CREATE INDEX idx_order_product ON "Order_Details" ("Product_ID");
 CREATE INDEX idx_inventory_store_product ON "Store_Inventory" ("Store_ID", "Product_ID");
