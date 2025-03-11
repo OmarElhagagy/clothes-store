@@ -1,6 +1,5 @@
 package com.yourstore.model;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -9,40 +8,28 @@ import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "Store_Inventory")
-public class StoreInventory {
-	
+@Table(name = "Product_Categories")
+public class ProductCategories {
 	@EmbeddedId
-	private StoreInventoryId id;
-
-	@ManyToOne
-	@MapsId("storeId")
-	@JoinColumn(name = "Store_ID")
-	private Store store;
+	private ProductCategoriesId id;
 
 	@ManyToOne
 	@MapsId("productId")
 	@JoinColumn(name = "Product_ID")
 	private Product product;
 
-	@Column(name = "Quantity", nullable = false)
-	private Integer quantity;
+	@ManyToOne
+	@MapsId("categoryId")
+	@JoinColumn(name = "Category_ID")
+	private Categories category;
 
-	//Getters and Setters
-	public StoreInventoryId getId() {
+	// getters and setters
+	public ProductCategoriesId getId() {
 		return id;
 	}
 
-	public void setId(StoreInventoryId id) {
+	public void setId(ProductCategoriesId id) {
 		this.id = id;
-	}
-
-	public Store getStore() {
-		return store;
-	}
-
-	public void setStore(Store store) {
-		this.store = store;
 	}
 
 	public Product getProduct() {
@@ -53,12 +40,12 @@ public class StoreInventory {
 		this.product = product;
 	}
 
-	public Integer getQuantity() {
-		return quantity;
+	public Categories getCategory() {
+		return category;
 	}
 
-	public void setQuantity(Integer quantity) {
-		this.quantity = quantity;
+	public void setCategory(Categories category) {
+		this.category = category;
 	}
 
 	// equals and hashCode
@@ -67,9 +54,8 @@ public class StoreInventory {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((store == null) ? 0 : store.hashCode());
 		result = prime * result + ((product == null) ? 0 : product.hashCode());
-		result = prime * result + ((quantity == null) ? 0 : quantity.hashCode());
+		result = prime * result + ((category == null) ? 0 : category.hashCode());
 		return result;
 	}
 
@@ -81,26 +67,21 @@ public class StoreInventory {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		StoreInventory other = (StoreInventory) obj;
+		ProductCategories other = (ProductCategories) obj;
 		if (id == null) {
 			if (other.id != null)
 				return false;
 		} else if (!id.equals(other.id))
-			return false;
-		if (store == null) {
-			if (other.store != null)
-				return false;
-		} else if (!store.equals(other.store))
 			return false;
 		if (product == null) {
 			if (other.product != null)
 				return false;
 		} else if (!product.equals(other.product))
 			return false;
-		if (quantity == null) {
-			if (other.quantity != null)
+		if (category == null) {
+			if (other.category != null)
 				return false;
-		} else if (!quantity.equals(other.quantity))
+		} else if (!category.equals(other.category))
 			return false;
 		return true;
 	}

@@ -13,10 +13,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Min;
 
 @Entity
-@Table(name = "\"Customer\"")
+@Table(name = "Customer")
 public class Customer {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,13 +54,16 @@ public class Customer {
 	private Set<Cart> cartItems = new HashSet<>();
 
 	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
-	private Set<WishList> whishListItmes = new HashSet<>();
+	private Set<Wishlist> whishListItmes = new HashSet<>();
 
 	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
 	private Set<PhoneNumbersCustomers> phoneNumbers = new HashSet<>();
 
 	@OneToMany(mappedBy = "customer")
-	private Set<Notifications> notifications = new HashSet<>();
+	private Set<Notification> notifications = new HashSet<>();
+
+	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<Reviews> reviews = new HashSet<>();
 
 	public Integer getCustomerId() {
 		return customerId;
@@ -151,11 +153,11 @@ public class Customer {
 		this.cartItems = cartItems;
 	}
 
-	public Set<WishList> getWhishListItmes() {
+	public Set<Wishlist> getWhishListItmes() {
 		return whishListItmes;
 	}
 
-	public void setWhishListItmes(Set<WishList> whishListItmes) {
+	public void setWhishListItmes(Set<Wishlist> whishListItmes) {
 		this.whishListItmes = whishListItmes;
 	}
 
@@ -167,11 +169,128 @@ public class Customer {
 		this.phoneNumbers = phoneNumbers;
 	}
 
-	public Set<Notifications> getNotifications() {
+	public Set<Notification> getNotifications() {
 		return notifications;
 	}
 
-	public void setNotifications(Set<Notifications> notifications) {
+	public void setNotifications(Set<Notification> notifications) {
 		this.notifications = notifications;
+	}
+
+	public Set<Reviews> getReviews() {
+		return reviews;
+	}
+
+	public void setReviews(Set<Reviews> reviews) {
+		this.reviews = reviews;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((customerId == null) ? 0 : customerId.hashCode());
+		result = prime * result + ((firstName == null) ? 0 : firstName.hashCode());
+		result = prime * result + ((middleName == null) ? 0 : middleName.hashCode());
+		result = prime * result + ((lastName == null) ? 0 : lastName.hashCode());
+		result = prime * result + ((gender == null) ? 0 : gender.hashCode());
+		result = prime * result + ((birthDate == null) ? 0 : birthDate.hashCode());
+		result = prime * result + ((email == null) ? 0 : email.hashCode());
+		result = prime * result + ((users == null) ? 0 : users.hashCode());
+		result = prime * result + ((addresses == null) ? 0 : addresses.hashCode());
+		result = prime * result + ((orders == null) ? 0 : orders.hashCode());
+		result = prime * result + ((cartItems == null) ? 0 : cartItems.hashCode());
+		result = prime * result + ((whishListItmes == null) ? 0 : whishListItmes.hashCode());
+		result = prime * result + ((phoneNumbers == null) ? 0 : phoneNumbers.hashCode());
+		result = prime * result + ((notifications == null) ? 0 : notifications.hashCode());
+		result = prime * result + ((reviews == null) ? 0 : reviews.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Customer other = (Customer) obj;
+		if (customerId == null) {
+			if (other.customerId != null)
+				return false;
+		} else if (!customerId.equals(other.customerId))
+			return false;
+		if (firstName == null) {
+			if (other.firstName != null)
+				return false;
+		} else if (!firstName.equals(other.firstName))
+			return false;
+		if (middleName == null) {
+			if (other.middleName != null)
+				return false;
+		} else if (!middleName.equals(other.middleName))
+			return false;
+		if (lastName == null) {
+			if (other.lastName != null)
+				return false;
+		} else if (!lastName.equals(other.lastName))
+			return false;
+		if (gender == null) {
+			if (other.gender != null)
+				return false;
+		} else if (!gender.equals(other.gender))
+			return false;
+		if (birthDate == null) {
+			if (other.birthDate != null)
+				return false;
+		} else if (!birthDate.equals(other.birthDate))
+			return false;
+		if (email == null) {
+			if (other.email != null)
+				return false;
+		} else if (!email.equals(other.email))
+			return false;
+		if (users == null) {
+			if (other.users != null)
+				return false;
+		} else if (!users.equals(other.users))
+			return false;
+		if (addresses == null) {
+			if (other.addresses != null)
+				return false;
+		} else if (!addresses.equals(other.addresses))
+			return false;
+		if (orders == null) {
+			if (other.orders != null)
+				return false;
+		} else if (!orders.equals(other.orders))
+			return false;
+		if (cartItems == null) {
+			if (other.cartItems != null)
+				return false;
+		} else if (!cartItems.equals(other.cartItems))
+			return false;
+		if (whishListItmes == null) {
+			if (other.whishListItmes != null)
+				return false;
+		} else if (!whishListItmes.equals(other.whishListItmes))
+			return false;
+		if (phoneNumbers == null) {
+			if (other.phoneNumbers != null)
+				return false;
+		} else if (!phoneNumbers.equals(other.phoneNumbers))
+			return false;
+		if (notifications == null) {
+			if (other.notifications != null)
+				return false;
+		} else if (!notifications.equals(other.notifications))
+			return false;
+		if (reviews == null) {
+			if (other.reviews != null)
+				return false;
+		} else if (!reviews.equals(other.reviews))
+			return false;
+		return true;
 	}
 }

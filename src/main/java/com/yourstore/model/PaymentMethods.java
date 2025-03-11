@@ -49,4 +49,41 @@ public class PaymentMethods {
 		this.orders = orders;
 	}
 
+	// equals and hashCode
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((paymentMethodId == null) ? 0 : paymentMethodId.hashCode());
+		result = prime * result + ((methodName == null) ? 0 : methodName.hashCode());
+		result = prime * result + ((orders == null) ? 0 : orders.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PaymentMethods other = (PaymentMethods) obj;
+		if (paymentMethodId == null) {
+			if (other.paymentMethodId != null)
+				return false;
+		} else if (!paymentMethodId.equals(other.paymentMethodId))
+			return false;
+		if (methodName == null) {
+			if (other.methodName != null)
+				return false;
+		} else if (!methodName.equals(other.methodName))
+			return false;
+		if (orders == null) {
+			if (other.orders != null)
+				return false;
+		} else if (!orders.equals(other.orders))
+			return false;
+		return true;
+	}
 }

@@ -16,7 +16,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
 
 @Entity
-@Table(name = "\"Supplier\"")
+@Table(name = "Supplier")
 public class Supplier {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,7 +37,7 @@ public class Supplier {
 	private Set<SupplyOrder> supplyOrders = new HashSet<>();
 
 	@OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL)
-	private Set<PhoneNumbersSuppliers> phoneNumbers = new HashSet<>();
+	private Set<PhoneNumbersSupplier> phoneNumbers = new HashSet<>();
 
 	// Getters and Setters
 	public Integer getSupplierId() {
@@ -80,11 +80,11 @@ public class Supplier {
 		this.supplyOrders = supplyOrders;
 	}
 
-	public Set<PhoneNumbersSuppliers> getPhoneNumbers() {
+	public Set<PhoneNumbersSupplier> getPhoneNumbers() {
 		return phoneNumbers;
 	}
 
-	public void setPhoneNumbers(Set<PhoneNumbersSuppliers> phoneNumbers) {
+	public void setPhoneNumbers(Set<PhoneNumbersSupplier> phoneNumbers) {
 		this.phoneNumbers = phoneNumbers;
 	}
 }

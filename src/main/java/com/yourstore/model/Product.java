@@ -5,16 +5,16 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Email;
 
 @Entity
 @Table(name = "Product")
@@ -85,153 +85,10 @@ public class Product {
 	@OneToMany(mappedBy = "product")
 	private Set<Notification> notifications = new HashSet<>();
 
-	// equals and hashCode
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((productId == null) ? 0 : productId.hashCode());
-		result = prime * result + ((supplier == null) ? 0 : supplier.hashCode());
-		result = prime * result + ((productName == null) ? 0 : productName.hashCode());
-		result = prime * result + ((size == null) ? 0 : size.hashCode());
-		result = prime * result + ((brand == null) ? 0 : brand.hashCode());
-		result = prime * result + ((price == null) ? 0 : price.hashCode());
-		result = prime * result + ((color == null) ? 0 : color.hashCode());
-		result = prime * result + ((launchDate == null) ? 0 : launchDate.hashCode());
-		result = prime * result + ((description == null) ? 0 : description.hashCode());
-		result = prime * result + ((isActive == null) ? 0 : isActive.hashCode());
-		result = prime * result + ((inventory == null) ? 0 : inventory.hashCode());
-		result = prime * result + ((reservedStocks == null) ? 0 : reservedStocks.hashCode());
-		result = prime * result + ((orderDetails == null) ? 0 : orderDetails.hashCode());
-		result = prime * result + ((returns == null) ? 0 : returns.hashCode());
-		result = prime * result + ((supplyOrders == null) ? 0 : supplyOrders.hashCode());
-		result = prime * result + ((priceHistory == null) ? 0 : priceHistory.hashCode());
-		result = prime * result + ((cartItems == null) ? 0 : cartItems.hashCode());
-		result = prime * result + ((wishlistItems == null) ? 0 : wishlistItems.hashCode());
-		result = prime * result + ((images == null) ? 0 : images.hashCode());
-		result = prime * result + ((productCategories == null) ? 0 : productCategories.hashCode());
-		result = prime * result + ((notifications == null) ? 0 : notifications.hashCode());
-		return result;
-	}
+	@OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<Reviews> reviews = new HashSet<>();
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Product other = (Product) obj;
-		if (productId == null) {
-			if (other.productId != null)
-				return false;
-		} else if (!productId.equals(other.productId))
-			return false;
-		if (supplier == null) {
-			if (other.supplier != null)
-				return false;
-		} else if (!supplier.equals(other.supplier))
-			return false;
-		if (productName == null) {
-			if (other.productName != null)
-				return false;
-		} else if (!productName.equals(other.productName))
-			return false;
-		if (size == null) {
-			if (other.size != null)
-				return false;
-		} else if (!size.equals(other.size))
-			return false;
-		if (brand == null) {
-			if (other.brand != null)
-				return false;
-		} else if (!brand.equals(other.brand))
-			return false;
-		if (price == null) {
-			if (other.price != null)
-				return false;
-		} else if (!price.equals(other.price))
-			return false;
-		if (color == null) {
-			if (other.color != null)
-				return false;
-		} else if (!color.equals(other.color))
-			return false;
-		if (launchDate == null) {
-			if (other.launchDate != null)
-				return false;
-		} else if (!launchDate.equals(other.launchDate))
-			return false;
-		if (description == null) {
-			if (other.description != null)
-				return false;
-		} else if (!description.equals(other.description))
-			return false;
-		if (isActive == null) {
-			if (other.isActive != null)
-				return false;
-		} else if (!isActive.equals(other.isActive))
-			return false;
-		if (inventory == null) {
-			if (other.inventory != null)
-				return false;
-		} else if (!inventory.equals(other.inventory))
-			return false;
-		if (reservedStocks == null) {
-			if (other.reservedStocks != null)
-				return false;
-		} else if (!reservedStocks.equals(other.reservedStocks))
-			return false;
-		if (orderDetails == null) {
-			if (other.orderDetails != null)
-				return false;
-		} else if (!orderDetails.equals(other.orderDetails))
-			return false;
-		if (returns == null) {
-			if (other.returns != null)
-				return false;
-		} else if (!returns.equals(other.returns))
-			return false;
-		if (supplyOrders == null) {
-			if (other.supplyOrders != null)
-				return false;
-		} else if (!supplyOrders.equals(other.supplyOrders))
-			return false;
-		if (priceHistory == null) {
-			if (other.priceHistory != null)
-				return false;
-		} else if (!priceHistory.equals(other.priceHistory))
-			return false;
-		if (cartItems == null) {
-			if (other.cartItems != null)
-				return false;
-		} else if (!cartItems.equals(other.cartItems))
-			return false;
-		if (wishlistItems == null) {
-			if (other.wishlistItems != null)
-				return false;
-		} else if (!wishlistItems.equals(other.wishlistItems))
-			return false;
-		if (images == null) {
-			if (other.images != null)
-				return false;
-		} else if (!images.equals(other.images))
-			return false;
-		if (productCategories == null) {
-			if (other.productCategories != null)
-				return false;
-		} else if (!productCategories.equals(other.productCategories))
-			return false;
-		if (notifications == null) {
-			if (other.notifications != null)
-				return false;
-		} else if (!notifications.equals(other.notifications))
-			return false;
-		return true;
-	}
-
-	// Getters and Setters
+	// getters and setters
 	public Integer getProductId() {
 		return productId;
 	}
@@ -400,4 +257,163 @@ public class Product {
 		this.notifications = notifications;
 	}
 
+	public Set<Reviews> getReviews() {
+		return reviews;
+	}
+
+	public void setReviews(Set<Reviews> reviews) {
+		this.reviews = reviews;
+	}
+
+	// equals and hashCode
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((productId == null) ? 0 : productId.hashCode());
+		result = prime * result + ((supplier == null) ? 0 : supplier.hashCode());
+		result = prime * result + ((productName == null) ? 0 : productName.hashCode());
+		result = prime * result + ((size == null) ? 0 : size.hashCode());
+		result = prime * result + ((brand == null) ? 0 : brand.hashCode());
+		result = prime * result + ((price == null) ? 0 : price.hashCode());
+		result = prime * result + ((color == null) ? 0 : color.hashCode());
+		result = prime * result + ((launchDate == null) ? 0 : launchDate.hashCode());
+		result = prime * result + ((description == null) ? 0 : description.hashCode());
+		result = prime * result + ((isActive == null) ? 0 : isActive.hashCode());
+		result = prime * result + ((inventory == null) ? 0 : inventory.hashCode());
+		result = prime * result + ((reservedStocks == null) ? 0 : reservedStocks.hashCode());
+		result = prime * result + ((orderDetails == null) ? 0 : orderDetails.hashCode());
+		result = prime * result + ((returns == null) ? 0 : returns.hashCode());
+		result = prime * result + ((supplyOrders == null) ? 0 : supplyOrders.hashCode());
+		result = prime * result + ((priceHistory == null) ? 0 : priceHistory.hashCode());
+		result = prime * result + ((cartItems == null) ? 0 : cartItems.hashCode());
+		result = prime * result + ((wishlistItems == null) ? 0 : wishlistItems.hashCode());
+		result = prime * result + ((images == null) ? 0 : images.hashCode());
+		result = prime * result + ((productCategories == null) ? 0 : productCategories.hashCode());
+		result = prime * result + ((notifications == null) ? 0 : notifications.hashCode());
+		result = prime * result + ((reviews == null) ? 0 : reviews.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Product other = (Product) obj;
+		if (productId == null) {
+			if (other.productId != null)
+				return false;
+		} else if (!productId.equals(other.productId))
+			return false;
+		if (supplier == null) {
+			if (other.supplier != null)
+				return false;
+		} else if (!supplier.equals(other.supplier))
+			return false;
+		if (productName == null) {
+			if (other.productName != null)
+				return false;
+		} else if (!productName.equals(other.productName))
+			return false;
+		if (size == null) {
+			if (other.size != null)
+				return false;
+		} else if (!size.equals(other.size))
+			return false;
+		if (brand == null) {
+			if (other.brand != null)
+				return false;
+		} else if (!brand.equals(other.brand))
+			return false;
+		if (price == null) {
+			if (other.price != null)
+				return false;
+		} else if (!price.equals(other.price))
+			return false;
+		if (color == null) {
+			if (other.color != null)
+				return false;
+		} else if (!color.equals(other.color))
+			return false;
+		if (launchDate == null) {
+			if (other.launchDate != null)
+				return false;
+		} else if (!launchDate.equals(other.launchDate))
+			return false;
+		if (description == null) {
+			if (other.description != null)
+				return false;
+		} else if (!description.equals(other.description))
+			return false;
+		if (isActive == null) {
+			if (other.isActive != null)
+				return false;
+		} else if (!isActive.equals(other.isActive))
+			return false;
+		if (inventory == null) {
+			if (other.inventory != null)
+				return false;
+		} else if (!inventory.equals(other.inventory))
+			return false;
+		if (reservedStocks == null) {
+			if (other.reservedStocks != null)
+				return false;
+		} else if (!reservedStocks.equals(other.reservedStocks))
+			return false;
+		if (orderDetails == null) {
+			if (other.orderDetails != null)
+				return false;
+		} else if (!orderDetails.equals(other.orderDetails))
+			return false;
+		if (returns == null) {
+			if (other.returns != null)
+				return false;
+		} else if (!returns.equals(other.returns))
+			return false;
+		if (supplyOrders == null) {
+			if (other.supplyOrders != null)
+				return false;
+		} else if (!supplyOrders.equals(other.supplyOrders))
+			return false;
+		if (priceHistory == null) {
+			if (other.priceHistory != null)
+				return false;
+		} else if (!priceHistory.equals(other.priceHistory))
+			return false;
+		if (cartItems == null) {
+			if (other.cartItems != null)
+				return false;
+		} else if (!cartItems.equals(other.cartItems))
+			return false;
+		if (wishlistItems == null) {
+			if (other.wishlistItems != null)
+				return false;
+		} else if (!wishlistItems.equals(other.wishlistItems))
+			return false;
+		if (images == null) {
+			if (other.images != null)
+				return false;
+		} else if (!images.equals(other.images))
+			return false;
+		if (productCategories == null) {
+			if (other.productCategories != null)
+				return false;
+		} else if (!productCategories.equals(other.productCategories))
+			return false;
+		if (notifications == null) {
+			if (other.notifications != null)
+				return false;
+		} else if (!notifications.equals(other.notifications))
+			return false;
+		if (reviews == null) {
+			if (other.reviews != null)
+				return false;
+		} else if (!reviews.equals(other.reviews))
+			return false;
+		return true;
+	}
 }

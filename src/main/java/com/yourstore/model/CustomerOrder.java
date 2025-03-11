@@ -9,9 +9,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -39,7 +40,7 @@ public class CustomerOrder {
 	private Address addressId;
 
 	@ManyToOne
-	@JoinColumn(name = "Promorion_ID", nullable = false)
+	@JoinColumn(name = "Promotion_ID", nullable = false)
 	private Promotions promotionsId;
 
 	@OneToMany(mappedBy = "Order", cascade = CascadeType.ALL)
@@ -48,7 +49,10 @@ public class CustomerOrder {
 	@OneToMany(mappedBy = "Return", cascade = CascadeType.ALL)
 	private Set<Return> returns = new HashSet<>();
 
-	//Getters and Setters
+	@OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Shipping shipping;
+
+	// getters and setters
 	public Integer getOrderId() {
 		return orderId;
 	}
@@ -113,6 +117,15 @@ public class CustomerOrder {
 		this.returns = returns;
 	}
 
+	public Shipping getShipping() {
+		return shipping;
+	}
+
+	public void setShipping(Shipping shipping) {
+		this.shipping = shipping;
+	}
+
+	// equals and hashCode
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -125,6 +138,7 @@ public class CustomerOrder {
 		result = prime * result + ((promotionsId == null) ? 0 : promotionsId.hashCode());
 		result = prime * result + ((orderDetails == null) ? 0 : orderDetails.hashCode());
 		result = prime * result + ((returns == null) ? 0 : returns.hashCode());
+		result = prime * result + ((shipping == null) ? 0 : shipping.hashCode());
 		return result;
 	}
 
@@ -176,6 +190,11 @@ public class CustomerOrder {
 			if (other.returns != null)
 				return false;
 		} else if (!returns.equals(other.returns))
+			return false;
+		if (shipping == null) {
+			if (other.shipping != null)
+				return false;
+		} else if (!shipping.equals(other.shipping))
 			return false;
 		return true;
 	}
