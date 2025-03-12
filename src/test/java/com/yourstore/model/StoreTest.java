@@ -3,6 +3,8 @@ package com.yourstore.model;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.HashSet;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
@@ -60,6 +62,9 @@ public class StoreTest {
 			Storage storage = new Storage();
 			// set storage properties
 			storage.setStore(store);
+
+			// Add storage to store
+			HashSet<Storage> storages = new HashSet(); // hold Storage objects related to store
 		} finally {
 		}
 	}
