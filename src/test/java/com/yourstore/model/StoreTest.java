@@ -8,7 +8,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 
-public class StoreEntityTest {
+public class StoreTest {
     
     private static EntityManagerFactory emf = Persistence.createEntityManagerFactory("test-persistence-unit");
     
